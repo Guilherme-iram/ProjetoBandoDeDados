@@ -1,0 +1,6 @@
+
+# Seleciona os filmes e os respectivos atores atuando em cada filme.
+SELECT nome_filme, nome_ator FROM
+(select * from (select * from FILME
+INNER JOIN Participa_Filme_Ator ON FILME.cod_filme = Participa_Filme_Ator.cod_filme) AS A
+INNER JOIN ATOR AS B ON A.cod_ator = B.cod_ator);
