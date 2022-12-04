@@ -1,6 +1,6 @@
 from cinemassauro import *
 
-def insere_dados():
+def insere_dados_filme_sessao():
     
     try:
         cod_filme = "1234"
@@ -153,4 +153,69 @@ def insere_dados():
     except:
         print("Erro na inserção dos dados!")
 
-insere_dados()
+
+def insere_dados_compras():
+    for n in range(1, 30 + 1):
+        com_pedido = 0
+        cod_cliente = f"codcliente{n}"
+        cpf = f"111.111.111-{n:02}"
+        nome_cliente = f"Name{n}"
+        idade_cliente = f"{n}"
+        sexo_cliente = "F"
+        time_cliente = "Fluminense"
+        tipo_ingresso = "adulto"
+        
+        if tipo_ingresso == "estudante":
+            estudante = 1
+        else:
+            estudante = 0
+        
+        tipo_pagamento = "pix"
+        cod_ingresso = f"codingresso{n}"
+        cod_sessao = 111
+
+        num_poltrona = n
+        
+        cod_pedido = f"codpedido{n}"
+        
+        pedido = {}
+        nome_todos_produtos = retorna_nome_produtos()
+        for produto in nome_todos_produtos:
+            pedido[produto] = 0
+        
+        if com_pedido:
+            opcao = 1
+            print("Faca seu pedido! ")
+            while opcao:
+
+                exibir_produtos()
+                nome_produto = input("Digite o nome do produto que deseja comprar: ").lower().strip()
+                qtdade_produto = int(input("Digite a quantidade que deseja comprar desse produto: "))
+                try:
+                    pedido[nome_produto] += qtdade_produto
+                except:
+                    print("Algo deu errado no seu pedido! Tente novamente.")
+                opcao = int(input("Continuar pedindo? [1 - sim, 0 - nao]"))
+
+            print("Pedido finalizado!") 
+
+        cadastra_compra_cliente(
+            cod_cliente,
+            cpf,
+            idade_cliente,
+            nome_cliente,
+            sexo_cliente,
+            time_cliente,
+            estudante,
+            cod_ingresso,
+            cod_pedido,
+            pedido,
+            tipo_pagamento,
+            cod_sessao,
+            num_poltrona,
+            tipo_ingresso
+        )
+    pass
+
+insere_dados_filme_sessao()
+insere_dados_compras()

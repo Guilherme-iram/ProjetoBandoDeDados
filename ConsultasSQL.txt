@@ -13,7 +13,6 @@ INNER JOIN (select * from Filme as A INNER JOIN Sessao as B on A.cod_filme = B.c
 
 
 
-
 DDL - Data Definition Language - Linguagem de Definição de Dados.
 São os comandos que interagem com os objetos do banco.
 São comandos DDL : CREATE, ALTER e DROP

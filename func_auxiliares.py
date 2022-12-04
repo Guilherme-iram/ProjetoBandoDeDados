@@ -73,3 +73,67 @@ def custo_total_compra(cod_ingresso, cod_pedido):
         preco_ingresso = float(raw[0])
 
     return preco_ingresso, preco_pedido, preco_ingresso + preco_pedido
+
+def verifica_poltronas(cod_sessao, num_sala):
+    
+    con = sqlite3.connect('cinemaSauro.db')
+    c = con.cursor()
+    
+    c.execute(f"select capacidade_sala from Sala where num_sala = '{num_sala}'")
+    for raw in c.fetchall():
+        capacidade_sala = int(raw[0])
+    
+    poltronas_ocupadas = []
+    c.execute(f"SELECT num_poltrona FROM Poltrona WHERE cod_sessao == '{cod_sessao}' AND num_sala == '{num_sala}'")
+    for raw in c.fetchall():
+        poltronas_ocupadas.append(int(raw[0]))
+
+    if len(poltronas_ocupadas) > capacidade_sala:
+        return False
+    else:
+
+        matriz_poltronas = []
+        for i in range(5):
+            linha = []
+            for j in range(10):
+                linha.append('O')
+            matriz_poltronas.append(linha)
+
+        for poltrona in poltronas_ocupadas:
+                    
+                    if poltrona <= 10:
+                        poltrona_i = 0
+                        poltrona_j = poltrona - 1
+                    elif poltrona % 10 == 0:
+                        poltrona_i = poltrona // 10 - 1
+                        poltrona_j = 0
+                    else:
+                        poltrona_i = poltrona // 10
+                        poltrona_j = int(poltrona - (poltrona_i * 10))
+
+                    matriz_poltronas[poltrona_i][poltrona_j] = 'X'
+        while True:
+            
+            print("Poltronas disponíveis: \n")
+            print("coluna - ", end='')
+            for i in range(1, 10 + 1):
+                print(f"{i} ", end='')
+            print()
+            for i in range(5):
+                print(f"fila {i + 1} - ", end='')
+                for j in range(10):
+                    print(f"{matriz_poltronas[i][j]} ", end='')
+                print()
+            
+            fila_poltrona = int(input("Digite o numero da fila: "))
+            coluna_poltrona = int(input("Digite o numero da coluna: "))
+            num_poltrona = ((fila_poltrona - 1) * 10) + coluna_poltrona
+
+            i_fila =  fila_poltrona - 1
+            j_coluna =  coluna_poltrona - 1 
+            if (num_poltrona >= capacidade_sala):
+                print("\nPoltrona invalida! Tente outra.\n")
+            elif matriz_poltronas[i_fila][j_coluna] == 'X':
+                print("\nPoltrona invalida! Tente outra.\n")
+            else:
+                return num_poltrona

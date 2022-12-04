@@ -95,10 +95,16 @@ def create_tables():
     # tabela INGRESSO
     c.execute(f"CREATE TABLE IF NOT EXISTS Ingresso"\
         "(cod_ingresso varCHAR PRIMARY KEY NOT NULL,"\
-        "cod_sessao varCHAR,"
+        "cod_sessao varCHAR,"\
         "num_poltrona SMALLINT,"\
         "tipo_ingresso varCHAR,"\
         "preco_ingresso FLOAT)"
+        )
+
+    c.execute(f"CREATE TABLE IF NOT EXISTS Poltrona"\
+        "(cod_sessao varCHAR,"\
+        "num_sala INT,"\
+        "num_poltrona SMALLINT)"
         )
 
     for n in range(1, 45 + 1):
@@ -111,3 +117,26 @@ def create_tables():
     con.commit()
 
 create_tables()
+
+
+# con = sqlite3.connect('cinemaSauro.db')
+# c = con.cursor()
+
+# c.execute("DROP TABLE Filme")
+# c.execute("DROP TABLE Participa_Filme_Ator")
+# c.execute("DROP TABLE Ator")
+# c.execute("DROP TABLE Sessao")
+# c.execute("DROP TABLE Data")
+# c.execute("DROP TABLE Sala")
+# c.execute("DROP TABLE Produto")
+# c.execute("DROP TABLE Lanchonete")
+# c.execute("DROP TABLE Cliente")
+# c.execute("DROP TABLE Pedido")
+# c.execute("DROP TABLE Compra")
+# c.execute("DROP TABLE Ingresso")
+# c.execute("DROP TABLE Poltrona")
+# con.commit()
+# c.close()
+
+# import os 
+# os.remove(f"cinemaSauro.db") if os.path.exists(f"cinemaSauro.db") else None

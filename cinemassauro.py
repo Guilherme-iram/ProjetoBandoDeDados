@@ -1,5 +1,5 @@
 import sqlite3
-
+import pandas as pd
 from func_auxiliares import *
 
 
@@ -84,6 +84,7 @@ def novo_filme():
     dia, mes, ano = input("Data de estreia: [dd/mm/aaaa] ").split("/")
     data_estreia = f"{ano}/{mes}/{dia}"
     n_atores = int(input("Quantos atores no filme? "))
+    lista_dict_atores = []
 
     for i in range(1, n_atores + 1):
         cod_ator = input(f"Código ator/atriz {i}: ")
@@ -233,7 +234,35 @@ def cadastra_nova_sessao(cod_sessao,
 
 def nova_sessao():
 
+    con = sqlite3.connect('cinemaSauro.db')
+    c = con.cursor()
+    
     cod_sessao = input("Digite o codigo da sessao: ").strip()
+    
+    dict_filmes = {
+        "cod_filme" : [],
+        "nome_filme": [],
+        "categoria_filme": [],
+        "duracao_filme": [],
+        "indicacao_etaria": [],
+        "empresa_produtora": [],
+        "nacional_filme": [],
+        "data_estreia": []
+    }
+
+    c.execute(f"SELECT * FROM Filme")
+    for raw in c.fetchall():
+        dict_filmes["cod_filme"].append(raw[0])
+        dict_filmes["nome_filme"].append(raw[1])
+        dict_filmes["categoria_filme"].append(raw[2])
+        dict_filmes["duracao_filme"].append(raw[3])
+        dict_filmes["indicacao_etaria"].append(raw[4])
+        dict_filmes["empresa_produtora"].append(raw[5])
+        dict_filmes["nacional_filme"].append(raw[6])
+        dict_filmes["data_estreia"].append(raw[7])
+
+    print(pd.DataFrame(dict_filmes))
+    
     cod_filme = input("Digite o codigo do filme: ").strip()
     num_sala = int(input("Digite o número da sala para alocar nessa sessão: [1, 45] "))
     horario_sessao = input("Digite o horario dasessao: [HH:MM] ")
@@ -297,6 +326,17 @@ def cadastra_compra_cliente(
     con = sqlite3.connect('cinemaSauro.db')
     c = con.cursor()
 
+    c.execute(f"SELECT num_sala, cod_sessao FROM Sessao where cod_sessao = '{cod_sessao}'")
+    for raw in c.fetchall():
+        num_sala = int(raw[0])
+
+    c.execute("SELECT cod_sessao, num_sala, num_poltrona from Poltrona")
+    for raw in c.fetchall():
+        tb_cod_sessao, tb_num_sala, tb_num_poltrona = raw[0], int(raw[1]), int(raw[2])
+        if cod_sessao == tb_cod_sessao and tb_num_sala == num_sala and tb_num_poltrona == num_poltrona:
+            print("Poltrona já ocupada para essa sessão! Reiniciei a compra.")
+            return
+
     c.execute("SELECT cod_cliente from Cliente")
     for raw in c.fetchall():
         if raw[0] == cod_cliente:
@@ -315,6 +355,10 @@ def cadastra_compra_cliente(
             print("Código de pedido já cadastrado!")
             return
     
+    c.execute("INSERT INTO Poltrona (cod_sessao,"\
+        "num_sala, num_poltrona) VALUES (?, ?, ?)",
+        (cod_sessao, num_sala, num_poltrona))
+
     list_pedido = []
     c.execute("SELECT cod_produto, produto from Produto")
     for raw in c.fetchall():
@@ -362,10 +406,14 @@ def cadastra_compra_cliente(
             " VALUES (?, ?, ?, ?, ?)",\
              (cod_ingresso, cod_sessao, num_poltrona, tipo_ingresso, preco_ingresso))
     
+
     con.commit()
 
 def compra_ingresso(com_pedido = False):
-
+    
+    con = sqlite3.connect('cinemaSauro.db')
+    c = con.cursor()
+    
     cod_cliente = input("Código do cliente: ").strip()
     cpf = input("CPF do cliente: [apenas numeros] ").strip()
     nome_cliente = input("Nome do cliente: ").strip()
@@ -382,9 +430,19 @@ def compra_ingresso(com_pedido = False):
     tipo_pagamento = input("Qual o meio de pagamento do cliente? [cartao, pix, dinheiro, bitcoin] ").lower().strip()
     cod_ingresso = input("Insira o código do ingresso: ")
     exibir_sessoes()
+
     cod_sessao = input("Escolha o codigo de uma das sessoes disponiveis: ")
-    num_poltrona = int(input("Digite o numero da poltrona: "))
     
+    c.execute(f"SELECT num_sala, cod_sessao FROM Sessao where cod_sessao = '{cod_sessao}'")
+    for raw in c.fetchall():
+        num_sala = int(raw[0])
+
+    num_poltrona = verifica_poltronas(cod_sessao, num_sala)
+    
+    if num_poltrona == False:
+        print("Sessao litada! ")
+        return
+
     cod_pedido = input("Digite o codigo do pedido: ")
     
     pedido = {}
@@ -424,6 +482,7 @@ def compra_ingresso(com_pedido = False):
         num_poltrona,
         tipo_ingresso
     )
+
     msg_voucher = "-> VOUCHER da compra <-"
     len_msg = len(msg_voucher) - 1
     print("-" * len_msg)
