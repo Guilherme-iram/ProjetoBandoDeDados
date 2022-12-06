@@ -117,27 +117,27 @@ def create_tables():
 
     con.commit()
 
+reiniciar = int(input("Reiniciar banco de dados? "))
+
+if reiniciar:
+    con = sqlite3.connect('cinemaSauro.db')
+    c = con.cursor()
+    c.execute("DROP TABLE Filme")
+    c.execute("DROP TABLE Participa_Filme_Ator")
+    c.execute("DROP TABLE Ator")
+    c.execute("DROP TABLE Sessao")
+    c.execute("DROP TABLE Data")
+    c.execute("DROP TABLE Sala")
+    c.execute("DROP TABLE Produto")
+    c.execute("DROP TABLE Lanchonete")
+    c.execute("DROP TABLE Cliente")
+    c.execute("DROP TABLE Pedido")
+    c.execute("DROP TABLE Compra")
+    c.execute("DROP TABLE Ingresso")
+    c.execute("DROP TABLE Poltrona")
+    con.commit()
+    c.close()
+
+    print("Bando de reiniciado!")
+
 create_tables()
-
-
-# con = sqlite3.connect('cinemaSauro.db')
-# c = con.cursor()
-
-# c.execute("DROP TABLE Filme")
-# c.execute("DROP TABLE Participa_Filme_Ator")
-# c.execute("DROP TABLE Ator")
-# c.execute("DROP TABLE Sessao")
-# c.execute("DROP TABLE Data")
-# c.execute("DROP TABLE Sala")
-# c.execute("DROP TABLE Produto")
-# c.execute("DROP TABLE Lanchonete")
-# c.execute("DROP TABLE Cliente")
-# c.execute("DROP TABLE Pedido")
-# c.execute("DROP TABLE Compra")
-# c.execute("DROP TABLE Ingresso")
-# c.execute("DROP TABLE Poltrona")
-# con.commit()
-# c.close()
-
-# import os 
-# os.remove(f"cinemaSauro.db") if os.path.exists(f"cinemaSauro.db") else None
