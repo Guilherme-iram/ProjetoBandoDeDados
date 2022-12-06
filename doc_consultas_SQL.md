@@ -2,6 +2,12 @@
 
 ## Diagrama - relacionamento - Cinema Sauro
 
+## Modelo Entidade Relacionamento
+![modeloER.png](attachment:modeloER.png)
+
+## Diagrama Entidade Relacionamento
+![diagramaER.png](attachment:diagramaER.png)
+
 ### Entidade Cliente
  - Definição: é a entidade principal associada às compras de pedidos na lanchonete e de ingresso. Sua chave primária é o seu código de cliente.
 
