@@ -1,5 +1,3 @@
-# Projeto Bando de Dados - Cinema Sauro
-
 # Consultas SQL
 
 ## 1. DDL - Data Definition Language - Linguagem de Definição de Dados.

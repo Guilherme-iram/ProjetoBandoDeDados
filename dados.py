@@ -153,7 +153,6 @@ def insere_dados_filme_sessao():
     except:
         print("Erro na inserção dos dados!")
 
-
 def insere_dados_compras():
     for n in range(1, 30 + 1):
         com_pedido = 0

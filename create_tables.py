@@ -101,6 +101,7 @@ def create_tables():
         "preco_ingresso FLOAT)"
         )
 
+    # Criando tabela Poltrona
     c.execute(f"CREATE TABLE IF NOT EXISTS Poltrona"\
         "(cod_sessao varCHAR,"\
         "num_sala INT,"\

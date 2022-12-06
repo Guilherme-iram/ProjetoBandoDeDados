@@ -1,9 +1,10 @@
 from cinemassauro import *
-
+from time import sleep
 
 def main():
     
     msg_inicial = "\t| BEM VINDO AO CINEMASAURO |"
+
     print('\t' + "-" * (len(msg_inicial) - 1))
     print(msg_inicial)
     print('\t' + '-' * (len(msg_inicial) - 1))
@@ -13,6 +14,7 @@ def main():
              "\n\t[1 - cadastrar/remover, 2 - consultar] "))
 
         if sistema == 1:
+            sleep(1)
             print("""
             Escolha uma opção a seguir:
 
@@ -55,6 +57,7 @@ def main():
                 remove_compra()
         
         else:
+            sleep(1)
             print("""
             Escolha uma opção a seguir:
 
@@ -71,10 +74,14 @@ def main():
             if opcao not in range(1, 3 + 1):
                 break
             
-            print(f"Voce escolheu a opcao {opcao}")
-
-
+            if opcao == 1:
+                querry_atores_filmes()
+            elif opcao == 2:
+                querry_sessoes_disponiveis()
+            elif opcao == 3:
+                querry_financeiro()
+    
+    print("\nPrograma encerrado!")
 
 if __name__ == "__main__":
     main()
-

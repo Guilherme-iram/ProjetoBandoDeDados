@@ -493,6 +493,7 @@ def compra_ingresso(com_pedido = False):
     print(f"Cod. pedido: {cod_pedido}")
     print(f"Cod. ingresso: {cod_ingresso}")
     print(f"Tipo de ingresso: {tipo_ingresso}")
+    print(f"Num. sala {num_sala}")
     print(f"Num. poltrona: {num_poltrona}")
     preco_ingresso, preco_pedido, preco_total = custo_total_compra(cod_ingresso, cod_pedido)
     print(f"Preco ingresso: R$ {preco_ingresso:.2f}")
@@ -589,3 +590,139 @@ def cadastrar_sala(num_sala, capacidade_sala):
     
     except:
         print("Erro no cadastro da nova sala!")
+
+def querry_atores_filmes():
+    
+    con = sqlite3.connect("cinemaSauro.db")
+    c = con.cursor()
+
+    atores_filme_dict = {
+        "nome_ator": [],
+        "filme": []
+    }
+
+    c.execute("""
+    SELECT nome_ator, nome_filme FROM
+    (select * from (select * from FILME
+    INNER JOIN Participa_Filme_Ator ON FILME.cod_filme = Participa_Filme_Ator.cod_filme) AS A
+    INNER JOIN ATOR AS B ON A.cod_ator = B.cod_ator) ORDER BY nome_ator;""")
+    
+    for raw in c.fetchall():
+
+        nome_ator = raw[0]
+        nome_filme = raw[1]
+        atores_filme_dict["nome_ator"].append(nome_ator)
+        atores_filme_dict["filme"].append(nome_filme)
+
+    atores_numero_filmes_dict = {
+        "nome_ator": [],
+        "numero_de_filmes": []
+    }
+
+    c.execute("""
+    SELECT  nome_ator, COUNT(nome_filme) AS Numero_de_filmes FROM
+    (select * from (select * from FILME
+    INNER JOIN Participa_Filme_Ator ON FILME.cod_filme = Participa_Filme_Ator.cod_filme) AS A
+    INNER JOIN ATOR AS B ON A.cod_ator = B.cod_ator) GROUP BY nome_ator ORDER BY nome_ator;
+    """)
+
+    for raw in c.fetchall():
+        nome_ator = raw[0]
+        numero_de_filmes = raw[1]
+        atores_numero_filmes_dict["nome_ator"].append(nome_ator)
+        atores_numero_filmes_dict["numero_de_filmes"].append(numero_de_filmes)
+
+    
+    atores_filme_df = pd.DataFrame(atores_filme_dict)
+    atores_numero_filme_df = pd.DataFrame(atores_numero_filmes_dict)
+
+    msg = "TABELA DE ATORES E SEUS RESPECTIVOS FILMES"
+    len_msg = len(msg)
+    print("-" * len_msg)
+    print(msg)
+    print("-" * len_msg, end='\n')
+    print(atores_filme_df, end='\n')
+    print("-" * len_msg, end='\n')
+    
+    msg = "TABELA DE ATORES E O TOTAL DE FILMES QUE PARTICIPARAM"
+    len_msg = len(msg)
+    print("-" * len_msg)
+    print(msg)
+    print("-" * len_msg, end='\n')
+    print(atores_numero_filme_df, end='\n')
+    print("-" * len_msg, end='\n')
+
+def querry_sessoes_disponiveis():
+    
+    msg = "SESSOES DISPONIVEIS"
+    len_msg = len(msg)
+    
+    print("-" * len_msg, end='\n')
+    exibir_sessoes()
+    print("-" * len_msg)
+
+def querry_financeiro():
+
+    con = sqlite3.connect("cinemaSauro.db")
+    c = con.cursor()
+
+    produtos_dict = {
+        "cod_produto" : [],
+        "nome" : [],
+        "receita R$": [] 
+    }
+    ingressos_dict = {
+        "cod_sessao": [],
+        "receita R$": []
+    }
+
+    c.execute("SELECT cod_produto, produto, SUM(preco_produto) AS receita_produto "\
+    " FROM (SELECT * from Lanchonete AS A INNER JOIN produto AS B "\
+    " ON A.cod_produto = B.cod_produto) GROUP BY cod_produto")
+    for raw in c.fetchall():
+        cod_produto, nome_produto, receita_produto = raw[0], raw[1], raw[2]
+        produtos_dict["cod_produto"].append(cod_produto) 
+        produtos_dict["nome"].append(nome_produto)
+        produtos_dict["receita R$"].append(receita_produto)
+
+    c.execute("select cod_sessao, sum(preco_ingresso) as receita_ingresso from Ingresso GROUP by cod_sessao")
+    for raw in c.fetchall():
+        cod_sessao, receita_ingresso = raw[0], raw[1]
+        ingressos_dict['cod_sessao'].append(cod_sessao)
+        ingressos_dict["receita R$"].append(receita_ingresso)
+
+    total_produto = sum(produtos_dict["receita R$"])
+    total_ingresso = sum(ingressos_dict["receita R$"])
+    total_receita = total_produto + total_ingresso
+
+    protudos_df = pd.DataFrame(produtos_dict)
+    ingressos_df = pd.DataFrame(ingressos_dict)
+
+    print("*" * 40)
+    print(f"{'>> RELATÓRIO FINANCEIRO <<':^40}\n")
+    print("TABELAS COM AS VENDAS")
+    print()
+    print(protudos_df)
+    print()
+    print(ingressos_df)
+    print()
+
+    print("Dados extras: ")
+    print("\n1. Produto")
+    print(f"O ganho total com produtos foi: R$ {total_produto:.2f} ({(total_produto / total_receita) * 100:.2f} % | Total)\n")
+    for ind in protudos_df.index:
+        nome_produto = protudos_df['nome'][ind]
+        receita_produto = produtos_dict['receita R$'][ind]
+        print (f"Dos quais {nome_produto:>15} rendeu R$ {receita_produto:>4.2f} ({(receita_produto / total_produto) * 100:>4.2f} % | Produto)")
+
+    print("\n2. Ingresos")
+    print(f"O ganho total com ingressos foi: R$ {total_ingresso:.2f} ({(total_ingresso / total_receita) * 100:.2f} % | Total)\n")
+    for ind in ingressos_df.index:
+        cod_sessao = ingressos_df['cod_sessao'][ind]
+        receita_ingresso = ingressos_df['receita R$'][ind]
+        print(f"Dos quais a sessão {cod_sessao:>5} rendeu R$ {receita_ingresso:>4.2f} ({(receita_ingresso / total_ingresso) * 100:>4.2f} % | Ingresso)")
+    
+    print(f"\nReceita total obtida: R$ {total_receita:.2f}")
+    print("*" * 40)
+
+
